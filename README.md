@@ -2,6 +2,13 @@
 
 version 1.3.0-release
 
+https://myze.xyz
+
+```
+Copyright (R) 2016 project myze
+Licensed under the MIT license
+```
+
 ## features
 - [x] export
 - [x] tutorial
