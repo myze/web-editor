@@ -50,7 +50,7 @@ module.exports = ->
     cmdDown = no if e.which is 91
   
   actions.click ->
-    switch this.getAttribute 'data-action'
+    switch @getAttribute 'data-action'
       when 'undo' then Editor.undo()
       when 'redo' then Editor.redo()
       when 'save' then Editor.uploadMap()
@@ -78,5 +78,9 @@ module.exports = ->
           Global.Mode = Modes.SIGN
           Global.SignMsg = msg
           Toast.text('Click on canvas anywhere to place new sign').show 3500
-    $('header').trigger 'toggle'
+    
+    # hide submenu after clicked
+    that = $(@).closest '.item'
+    that.parent().insertAt that.index(), that.detach()
+    
   

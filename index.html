@@ -47,7 +47,7 @@
 
   header > #handle {
     background: #2f8eb5;
-    box-shadow: 0 3px 6px rgba(0,0,0,.25);
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, .5);
     cursor: pointer;
     height: 100%;
     left: 0;
@@ -68,14 +68,17 @@
     font-size: 10pt;
     height: 100%;
     left: 48px;
-    margin-left: 1px;
     opacity: 0;
     position: absolute;
     right: 0;
     transition: none;
   }
 
-  header.show { height: 72px }
+  header.show {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
+    height: 72px;
+  }
+  header.show > #handle { box-shadow: none }
   header.show > #elements {
     opacity: 1;
     transition: opacity .15s ease-in-out .1s;
@@ -162,7 +165,29 @@
     padding-right: 4px;
     text-decoration: none;
   }
-
+  
+  #scale {
+    background: rgba(0,0,0,.5);
+    border-radius: 3px;
+    color: white;
+    cursor: default;
+    display: none;
+    font-size: 10pt;
+    height: 28px;
+    left: 48px;
+    line-height: 28px;
+    margin: -14px 0 0 1rem;
+    opacity: .75;
+    padding: 0 6px;
+    position: fixed;
+    top: 24px;
+    transition: top .15s ease, margin-top .15s ease;
+  }
+  header.show ~ main > #scale {
+    top: 72px;
+    margin-top: 1rem;
+  }
+  
   #nowebkit {
     color: #fff;
     font-size: 13pt;
@@ -198,20 +223,6 @@
     position: fixed;
     width: 16px;
     z-index: -1;
-  }
-
-  #scale {
-    background: rgba(0,0,0,.5);
-    border-radius: 3px;
-    color: white;
-    cursor: default;
-    display: none;
-    font-size: 10pt;
-    left: 3em;
-    opacity: .75;
-    padding: 6px;
-    position: fixed;
-    top: 3em;
   }
   
   .action-list {

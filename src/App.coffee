@@ -31,6 +31,15 @@ window.Editor = new class WebEditor
         @style.margin = h / -2 + 'px ' + w / -2 + 'px'
         @style.position = 'absolute'
         @style.top = '50%'
+        
+    $.fn.insertAt = (index, element)->
+      lastIndex = @children().size()
+      if index < 0
+        index = Math.max(0, lastIndex + 1 + index)
+      @append element
+      if index < lastIndex
+        @children().eq(index).before @children().last()
+      @
     
     Global.Paper = new Global.Raphael Global.Canvas[0], screen.width, screen.height
     Global.Paper.canvas.centerOnScreen Global.Paper.width, Global.Paper.height
