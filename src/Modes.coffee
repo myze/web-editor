@@ -1,0 +1,8 @@
+module.exports =
+  INSPECT: 0x0
+  NONE:    0x1
+  MOVING:  0x2
+  DRAW:    0x3
+  SPAWN:   0x4
+  ESCAPE:  0x5
+  SIGN:    0x6

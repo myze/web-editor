@@ -1,0 +1,26 @@
+{
+  "author": {
+    "name": "nodegin",
+    "email": "me@nodeg.in",
+    "url": "http://nodeg.in"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nodegin/myze.git"
+  },
+  "main": "lib/app.js",
+  "engines": {
+    "node": ">= 5.0.0"
+  },
+  "private": true,
+  "dependencies": {
+    "coffee-script": ">= 1.10.0",
+    "showcase.js": "^ 1.0.0",
+    "lz-string": ">= 1.4.4",
+    "socket.io-client": ">= 1.4.5"
+  },
+  "devDependencies": {
+    "webpack": ">= 1.12.9",
+    "coffee-loader": ">= 0.7.2"
+  }
+}

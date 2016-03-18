@@ -1,0 +1,589 @@
+<!doctype html>
+<html>
+<head>
+  <title>Web Editor</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+  @import 'https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css';
+  @import 'https://cdn.rawgit.com/Templarian/MaterialDesign-Webfont/master/css/materialdesignicons.min.css';
+  @font-face {
+    font-family: 'Junction';
+    src: url('https://cdn.rawgit.com/theleagueof/junction/master/webfonts/junction-light.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  html, body, main, #canvas {
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+  }
+  body {
+    background: #222;
+    font: 12pt 'Junction', sans-serif;
+    margin: 0;
+    text-align: center;
+    overflow: hidden;
+    -webkit-user-select: none;
+  }
+  a { text-decoration: none }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  header {
+    background: #222c35;
+    cursor: default;
+    color: #fff;
+    height: 0;
+    position: fixed;
+    top: 0;
+    transition: height .15s ease-in-out;
+    width: 100%;
+    z-index: 2;
+  }
+
+  header > #handle {
+    background: #2f8eb5;
+    box-shadow: 0 3px 6px rgba(0,0,0,.25);
+    cursor: pointer;
+    height: 100%;
+    left: 0;
+    min-height: 48px;
+    top: 0;
+    position: absolute;
+    text-align: center;
+    width: 48px;
+  }
+  header > #handle:before {
+    height: 16px;
+    margin: -8px;
+    position: absolute;
+    top: 50%;
+    width: 16px;
+  }
+  header > #elements {
+    font-size: 10pt;
+    height: 100%;
+    left: 48px;
+    margin-left: 1px;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    transition: none;
+  }
+
+  header.show { height: 72px }
+  header.show > #elements {
+    opacity: 1;
+    transition: opacity .15s ease-in-out .1s;
+  }
+  header #elements .back {
+    background: rgba(0, 0, 0, .4);
+    color: inherit;
+    float: left;
+    font-size: 16pt;
+    height: 100%;
+    line-height: 76px;
+    overflow: hidden;
+    width: 48px;
+  }
+  header #elements .buttons {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    text-align: left;
+  }
+  header .buttons .title, header .buttons .menu {
+    align-items: center;
+    display: flex;
+    padding: 0 .75rem;
+  }
+  header .buttons u { flex: 1 }
+  header .buttons .title { flex: 4 }
+  header .buttons .title input {
+    background: 0;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    font-size: 12pt;
+    line-height: 24px;
+    padding: 0 8px;
+  }
+  header .buttons .menu {
+    flex: 3;
+  }
+  header .menu .item {
+    position: relative;
+  }
+  header .menu .item > ul {
+    display: none;
+  }
+  header .menu .item:hover > ul {
+    display: block;
+    background: #3c4955;
+    border-radius: 0 2px 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .5);
+    margin-top: 8px;
+    padding: 6px 0;
+    position: absolute;
+    top: 100%;
+    width: 200px;
+  }
+  header .menu .item > span {
+    border-radius: 2px;
+    padding: 8px;
+    margin-right: 4px;
+  }
+  header .menu .item > ul ~ span { border-radius: 2px 2px 0 0 }
+  header .menu .item:hover > span { background: #3c4955 }
+  header .menu .item > ul li {
+    padding: 8px 8px 8px 32px;
+    position: relative;
+  }
+  header .menu .item > ul li:hover {
+    background: #566572;
+  }
+  header .menu .item > ul li > i {
+    height: 16px;
+    left: 8px;
+    margin-top: -8px;
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    width: 16px;
+  }
+  header .menu .item > ul li > u {
+    color: #ccc;
+    font-size: 12px;
+    float: right;
+    padding-right: 4px;
+    text-decoration: none;
+  }
+
+  #nowebkit {
+    color: #fff;
+    font-size: 13pt;
+    line-height: 32pt;
+  }
+  #nowebkit h1 { font-size: 48pt }
+
+  .ref:after {
+    background: #6a6c6e;
+    border-radius: 50%;
+    bottom: -3px;
+    content: '';
+    height: 6px;
+    position: absolute;
+    right: -3px;
+    width: 6px;
+  }
+  .ref:before {
+    border: 0 solid #111;
+    border-width: 0 1px 1px 0;
+    bottom: 0;
+    content: '';
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+  }
+
+  #cursor {
+    height: 16px;
+    opacity: 0;
+    position: fixed;
+    width: 16px;
+    z-index: -1;
+  }
+
+  #scale {
+    background: rgba(0,0,0,.5);
+    border-radius: 3px;
+    color: white;
+    cursor: default;
+    display: none;
+    font-size: 10pt;
+    left: 3em;
+    opacity: .75;
+    padding: 6px;
+    position: fixed;
+    top: 3em;
+  }
+  
+  .action-list {
+    background: rgba(0, 0, 0, .75);
+    border-radius: 4px;
+    color: #fff;
+    display: block;
+    font-size: 10pt;
+    height: auto;
+    opacity: 1;
+    overflow: visible;
+    padding: 4px 0;
+    width: 108px;
+  }
+  .action-list > li {
+    cursor: pointer;
+    margin: 4px 0;
+  }
+  .action-list > li:active { color: #aaa }
+
+  #tooltip {
+    background: rgba(0, 0, 0, .75);
+    border-radius: 4px;
+    color: #fff;
+    display: none;
+    font-size: 10pt;
+    margin-top: -1em;
+    padding: 8px;
+    position: fixed;
+    z-index: 2;
+  }
+  #tooltip:after {
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, .75);
+    bottom: -12px;
+    content: '';
+    left: 50%;
+    margin-left: -6px;
+    position: absolute;
+  }
+
+  .panel {
+    background: rgba(17, 17, 17, .8);
+    bottom: 0;
+    color: #74aac0;
+    cursor: default;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    transition: all .15s ease;
+  }
+  .panel.hide {
+    opacity: 0;
+    z-index: -1;
+  }
+  .panel.show {
+    opacity: 1;
+    z-index: 3;
+  }
+  .panel > .valign, #nowebkit {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+  }
+  .panel > .close {
+    color: #fff;
+    cursor: pointer;
+    font-size: 20pt;
+    height: 32px;
+    line-height: 32px;
+    position: absolute;
+    right: 1em;
+    top: 1em;
+    width: 32px;
+  }
+  .panel > .valign table{
+    text-align: left;
+  }
+  .panel > .valign table th{
+    font-weight: 100;
+    width: 320px;
+  }
+  .panel > .valign table td{
+    padding: 1em 0;
+    text-align: center;
+  }
+  .panel > .valign table td.category{
+    color: #fff;
+    padding-top: 2em;
+    text-align: left;
+  }
+
+  #map-settings #compass-box {
+    height: 88px;
+    position: relative;
+    text-align: center;
+    width: 88px;
+  }
+  #map-settings #compass-box > .n,
+  #map-settings #compass-box > .e,
+  #map-settings #compass-box > .s,
+  #map-settings #compass-box > .w{
+    color: #fff;
+    font-size: 14pt;
+    height: 24px;
+    line-height: 24px;
+    position: absolute;
+    transform: scale(.5);
+    width: 36px;
+  }
+  #map-settings #compass-box > .n, #map-settings #compass-box > .s {
+    left: 50%;
+    margin-left: -18px;
+  }
+  #map-settings #compass-box > .e, #map-settings #compass-box > .w {
+    margin-top: -12px;
+    top: 50%;
+  }
+  #map-settings #compass-box > .n { top: 0 }
+  #map-settings #compass-box > .e { right: 0 }
+  #map-settings #compass-box > .s { bottom: 0 }
+  #map-settings #compass-box > .w { left: 0 }
+  #map-settings .compass {
+    height: 36px;
+    left: 50%;
+    margin: -18px -4px;
+    position: absolute;
+    top: 50%;
+    width: 8px;
+  }
+  #map-settings .compass > .np, #map-settings .compass > .sp {
+    position: absolute;
+    left: 50%;
+    margin-left: -4px;
+  }
+  #map-settings .compass .np {
+    border: 0 solid transparent;
+    border-bottom-color: #ff3866;
+    border-width: 0 4px 18px;
+    top: 0;
+  }
+  #map-settings .compass .sp {
+    border: 0 solid transparent;
+    border-top-color: #fff;
+    border-width: 18px 4px 0;
+    bottom: 0;
+  }
+  #map-settings .lightbulb-wrapper {
+    height: 32px;
+    display: inline-block;
+    position: relative;
+    width: 32px;
+  }
+  #map-settings .lightbulb-wrapper .back,
+  #map-settings .lightbulb-wrapper .front {
+    bottom: 0;
+    color: #555;
+    font-size: 24pt;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  #map-settings .lightbulb-wrapper .front {
+    color: #fff59d;
+    text-shadow: 0 0 32px #fffde7;
+  }
+  #map-settings input[type="text"] {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid #74aac0;
+    color: #74aac0;
+    font: 12pt 'Junction', sans-serif;
+    margin: 8px 0;
+    outline: 0;
+    padding: 4px;
+    text-align: center;
+  }
+
+  #map-settings .filechooser {
+    background: #2f8eb5;
+    border-radius: 50%;
+    float: right;
+    height: 40px;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    width: 40px;
+  }
+  #map-settings .filechooser:after {
+    content: '\f238';
+    color: #fff;
+    font: 18pt/40px 'Material Design Icons';
+    z-index: -1;
+  }
+  #map-settings .filechooser.remove { background: #ef5350 }
+  #map-settings .filechooser.remove:after { content: '\f24c' }
+  #map-settings .filechooser input[type="file"],
+  #map-settings .filechooser.remove:before {
+    background: transparent;
+    border: 0;
+    bottom: 0;
+    opacity: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  #map-settings .filechooser.remove:before {
+    content: '';
+    z-index: 2;
+  }
+  </style>
+</head>
+<body>
+  <header>
+    <i id="handle" class="mdi mdi-menu"></i>
+    <div id="elements">
+      <a class="back" href="//myze.xyz/my/maps">
+        <i class="mdi mdi-keyboard-backspace"></i>
+      </a>
+      <div class="buttons">
+        <u></u>
+        <div class="title">
+          <input id="map-name" type="text">
+        </div>
+        <div class="menu">
+          <div class="item">
+            <ul>
+              <li data-action="save" data-shortcut="+83">
+                <i class="mdi mdi-upload"></i>
+                Save
+                <u>Ctrl+S</u>
+              </li>
+              <li data-action="settings">
+                <i class="mdi mdi-settings"></i>
+                Settings
+              </li>
+            </ul>
+            <span>Map</span>
+          </div>
+
+          <div class="item">
+            <ul>
+              <li data-action="guides" data-shortcut="+71">
+                <i class="mdi mdi-relative-scale"></i>
+                Toggle Guides
+                <u>Ctrl+G</u>
+              </li>
+            </ul>
+            <span>View</span>
+          </div>
+
+          <div class="item">
+            <ul>
+              <li data-action="undo" data-shortcut="+90">
+                <i class="mdi mdi-undo"></i>
+                Undo
+                <u>Ctrl+Z</u>
+              </li>
+              <li data-action="redo" data-shortcut="+89">
+                <i class="mdi mdi-redo"></i>
+                Redo
+                <u>Ctrl+Y</u>
+              </li>
+            </ul>
+            <span>Edit</span>
+          </div>
+
+          <div class="item">
+            <ul>
+              <li data-action="add-spawn">Add Spawn-point</li>
+              <li data-action="add-escape">Add Escape-point</li>
+              <li data-action="add-sign">Add Sign</li>
+            </ul>
+            <span>Components</span>
+          </div>
+
+          <div class="item" data-action="help"><span>Help</span></div>
+        </div>
+        <u></u>
+      </div>
+    </div>
+  </header>
+  <main style="display:none">
+    <article id="canvas"></article>
+    <span id="tooltip"></span>
+    <nav id="cursor"></nav>
+    <div id="scale">Scale:&ensp;1 Grid (40px) = 4m<span></span></div>
+    <article id="map-settings" class="panel hide">
+      <section class="valign">
+        <table>
+          <tr>
+            <td class="category" colspan="2">Settings</td>
+          </tr>
+          <tr>
+            <th>
+              Spawn-point facing direction<br>
+              Enter a number between 0 - 359<br>
+              <input type="text" id="facing-direction" value="0"><br>
+              <small>(*Editor default direction is North 0°)</small>
+            </th>
+            <td>
+              <div id="compass-box">
+                <nav class="compass">
+                  <i class="np"></i>
+                  <i class="sp"></i>
+                </nav>
+                <span class="n">0</span>
+                <span class="e">90</span>
+                <span class="s">180</span>
+                <span class="w">270</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>
+              Lighting level<br>
+              Enter a number between 1 - 10<br>
+              <input type="text" id="lighting-level" value="6">
+            </th>
+            <td>
+              <div class="lightbulb-wrapper">
+                <i class="mdi mdi-lightbulb back"></i>
+                <i id="lightbulb" class="mdi mdi-lightbulb front"></i>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="category" colspan="2">Textures</td>
+          </tr>
+          <tr>
+            <th>Ground texture<br>(PNG File, 128px × 128px)</th>
+            <td>
+              <div class="filechooser">
+                <input id="txground" type="file">
+              </div>
+             </td>
+          </tr>
+          <tr>
+            <th>Wall texture<br>(PNG File, 128px × 128px)</th>
+            <td>
+              <div class="filechooser">
+                <input id="txwall" type="file">
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <th>Ceiling texture<br>(PNG File, 128px × 128px)</th>
+            <td>
+              <div class="filechooser">
+                <input id="txceiling" type="file">
+              </div>
+             </td>
+          </tr>
+        </table>
+      </section>
+      <span class="close">×</span>
+    </article>
+  </main>
+  <div id="nowebkit" style="display:none">
+    <div>
+      <h1><i class="mdi mdi-alert-outline"></i></h1>
+      The Web Editor currently only supports<br>
+      Chrome, Safari, Opera browser.
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cdn.rawgit.com/DmitryBaranovskiy/raphael/master/raphael-min.js"></script>
+  <script>window.__map_id = 0-~~-0</script>
+  <script src="editor.js"></script>
+</body>
+</html>
