@@ -1,12 +1,12 @@
 {
   "author": {
-    "name": "nodegin",
-    "email": "me@nodeg.in",
-    "url": "http://nodeg.in"
+    "name": "project myze",
+    "email": "project.myze@gmail.com",
+    "url": "https://myze.xyz"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nodegin/myze.git"
+    "url": "https://github.com/myze/web-editor.git"
   },
   "main": "lib/app.js",
   "engines": {

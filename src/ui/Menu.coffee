@@ -4,13 +4,15 @@ Toast = require './Toast'
 
 module.exports = ->
   active = no
-  $('header').mousedown (e)->
-    return if not $(e.target).is '#handle'
+  $('header').on 'toggle', ->
     if active
       this.classList.remove 'show'
     else
       this.classList.add 'show'
     active = not active
+  .mousedown (e)->
+    return if not $(e.target).is '#handle'
+    $(@).trigger 'toggle'
   
   $('#map-name').keyup ->
     Global.MapTitle = this.value
@@ -76,7 +78,5 @@ module.exports = ->
           Global.Mode = Modes.SIGN
           Global.SignMsg = msg
           Toast.text('Click on canvas anywhere to place new sign').show 3500
-      
-      
-    $('header').removeClass 'show'
+    $('header').trigger 'toggle'
   
