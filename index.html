@@ -34,28 +34,29 @@
   }
 
   header {
-    background: #222c35;
     cursor: default;
     color: #fff;
     height: 0;
+    left: 32px;
     position: fixed;
-    top: 0;
-    transition: height .15s ease-in-out;
+    top: 32px;
     width: 100%;
     z-index: 2;
   }
 
   header > #handle {
     background: #2f8eb5;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, .5);
+    border-radius: 50%;
     cursor: pointer;
-    height: 100%;
+    height: 48px;
     left: 0;
-    min-height: 48px;
     top: 0;
     position: absolute;
     text-align: center;
     width: 48px;
+  }
+  header > #handle:active, header.show > #handle {
+    background: #297c9e;
   }
   header > #handle:before {
     height: 16px;
@@ -64,38 +65,58 @@
     top: 50%;
     width: 16px;
   }
+  header > #handle, header > #elements {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .25);
+  }
   header > #elements {
+    background: #222c35;
+    border-radius: 4px;
     font-size: 10pt;
     height: 100%;
     left: 48px;
+    margin-left: 16px;
     opacity: 0;
     position: absolute;
-    right: 0;
     transition: none;
+    top: -10px;
   }
 
   header.show {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .5);
     height: 72px;
   }
-  header.show > #handle { box-shadow: none }
   header.show > #elements {
+    margin-left: 24px;
     opacity: 1;
-    transition: opacity .15s ease-in-out .1s;
+    transition: all .15s ease-in-out .1s;
   }
   header #elements .back {
-    background: rgba(0, 0, 0, .4);
+    background: #2a3d4c;
+    border-radius: 4px 0 0 4px;
     color: inherit;
     float: left;
     font-size: 16pt;
     height: 100%;
     line-height: 76px;
     overflow: hidden;
+    position: relative;
     width: 48px;
   }
+  header.show #elements .back {
+    overflow: visible;
+  }
+  header #elements .back:after {
+    border: 8px solid transparent;
+    border-right-color: #2a3d4c;
+    content: '';
+    left: -16px;
+    margin-top: -8px;
+    position: absolute;
+    top: 50%;
+  }
   header #elements .buttons {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
+    float: left;
     height: 100%;
     text-align: left;
   }
