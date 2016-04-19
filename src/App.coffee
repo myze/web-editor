@@ -70,42 +70,53 @@ window.Editor = new class WebEditor
         maxY = Math.max.apply 0, stringified.match(/\d+\]/g).map (e)-> +e.slice 0, -1
         addX = window.innerWidth / 2 - maxX / 2 - Global.CanvasRect.left
         addY = window.innerHeight / 2 - maxY / 2 - Global.CanvasRect.top
-      if not data or not no #confirm 'inspect mode?'
-        ### map editor ###
-        require('./ui/SnapCursor')()
-        require('./ui/Tooltip')()
-        require('./ui/Menu')()
-        require('./ui/SettingsPanel')()
-        require('./ui/Canvas')()
-        if data?
-          Global.MapTitle = data.title
-          require('./util/MapRestore') data, addX, addY
+      new Promise (resolve, reject)=>
+        if not data
+          resolve no
         else
-          Global.MapTitle = 'Untitled'
-      else
-        Global.Mode = Modes.INSPECT
-        require('./util/MapRestore') data, addX, addY
-        $('header').remove()
-        $('#cursor').remove()
-        $('#map-settings').remove()
-        $('#shortcuts').remove()
-        $('#scale').remove()
+          $('#mode-select [data-mode]').click ->
+            $(@).closest('#mode-select').remove()
+            switch @getAttribute 'data-mode'
+              when 'inspect' then resolve yes
+              when 'create' then resolve no
+      .then (inspect)->
+        if not inspect
+          ### map editor ###
+          require('./ui/SnapCursor')()
+          require('./ui/Tooltip')()
+          require('./ui/Menu')()
+          require('./ui/SettingsPanel')()
+          require('./ui/Canvas')()
+          if data?
+            Global.MapTitle = data.title
+            require('./util/MapRestore') data, addX, addY
+          else
+            Global.MapTitle = 'Untitled'
+        else
+          Global.Mode = Modes.INSPECT
+          require('./util/MapRestore') data, addX, addY
+          $('header').remove()
+          $('#cursor').remove()
+          $('#map-settings').remove()
+          $('#shortcuts').remove()
+          $('#scale').remove()
+          
+          socket = require('socket.io-client') 'https://myze.xyz'
+          Spawn = require './component/Spawn'
+          players = {}
+          playerHalfSize = undefined
+          socket.on 'sync', (data)->
+            console.log data
+            data = JSON.parse data.toLowerCase()
+            data.players.forEach (p)->
+              if not players[p.id]
+                players[p.id] = Spawn 0, 0, '#' + p.color.slice 0, 6
+                playerHalfSize = players[p.id].attrs.width / 2 if not playerHalfSize
+              players[p.id].attr
+                'x': +p.position.x - playerHalfSize + addX
+                'y': +p.position.z - playerHalfSize + addY
+              players[p.id].syncArrow +p.eulerangles.y
         
-        socket = require('socket.io-client') 'https://myze.xyz'
-        Spawn = require './component/Spawn'
-        players = {}
-        playerHalfSize = undefined
-        socket.on 'sync', (data)->
-          data = JSON.parse data.toLowerCase()
-          data.players.forEach (p)->
-            if not players[p.id]
-              players[p.id] = Spawn 0, 0, '#' + p.color.slice 0, 6
-              playerHalfSize = players[p.id].attrs.width / 2 if not playerHalfSize
-            players[p.id].attr
-              'x': +p.position.x - playerHalfSize + addX
-              'y': +p.position.z - playerHalfSize + addY
-            players[p.id].syncArrow +p.eulerangles.y
-      
     #@startTutorial()
     
   startTutorial: ->
@@ -195,8 +206,10 @@ window.Editor = new class WebEditor
     
     ep = if Global.MapId? then "/#{Global.MapId}" else ''
     $.post "#{@endpoint}/maps#{ep}", { data: data }, (id)->
-      if location.host is 'myze.xyz'
-        history.replaceState {}, document.title, "/editor?id=#{id}"
-      Global.MapId = id
-      Toast.text('Map uploaded successfully').show 2500
-    
+      if not id.length
+        Toast.text('Unable to save map').show 2000
+      else
+        if location.host is 'myze.xyz'
+          history.replaceState {}, document.title, "/editor?id=#{id}"
+        Global.MapId = id
+        Toast.text('Map uploaded successfully').show 2500

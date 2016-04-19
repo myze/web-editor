@@ -13,6 +13,12 @@ module.exports = ->
   .mousedown (e)->
     return if not $(e.target).is '#handle'
     $(@).trigger 'toggle'
+  .show()
+  
+  ### delay to play the animation ###
+  setTimeout ->
+    $('header').trigger 'toggle'
+  , 500
   
   $('#map-name').keyup ->
     Global.MapTitle = this.value

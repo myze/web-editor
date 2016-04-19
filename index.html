@@ -36,6 +36,7 @@
   header {
     cursor: default;
     color: #fff;
+    display: none;
     height: 0;
     left: 32px;
     position: fixed;
@@ -78,7 +79,7 @@
     opacity: 0;
     position: absolute;
     transition: none;
-    top: -10px;
+    top: -12px;
   }
 
   header.show {
@@ -195,9 +196,8 @@
     display: none;
     font-size: 10pt;
     height: 28px;
-    left: 48px;
+    left: 32px;
     line-height: 28px;
-    margin: -14px 0 0 1rem;
     opacity: .75;
     padding: 0 6px;
     position: fixed;
@@ -206,7 +206,7 @@
   }
   header.show ~ main > #scale {
     top: 72px;
-    margin-top: 1rem;
+    margin-top: 48px;
   }
   
   #nowebkit {
@@ -458,10 +458,66 @@
     content: '';
     z-index: 2;
   }
+  
+  #mode-select {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+  #mode-select > span { color: #80deea }
+  #mode-select > div > span {
+    border: 3px solid transparent;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 14pt;
+    height: 36px;
+    line-height: 40px;
+    margin: 4rem 1rem;
+    position: relative;
+    width: 108px;
+  }
+  #mode-select > div > span > b {
+    position: relative;
+    z-index: 2;
+  }
+  #mode-select > div > span:hover {
+    animation: blink 1s .1s ease infinite;
+    border-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgAgMAAAAOFJJnAAAADFBMVEV83er2k7Gj1Kf/3oE6nnpeAAAAF0lEQVQY02MAgVAgGCyM/0CwCggGCQMA0+F/gVvkQmYAAAAASUVORK5CYII) 1 stretch;
+  }
+  @keyframes blink {
+    0% { opacity: 1 }
+    45% { opacity: .25 }
+    55% { opacity: .25 }
+    to { opacity: 1 }
+  }
+  #mode-select > div > span:hover:before,
+  #mode-select > div > span:hover:after {
+    background: #222;
+    content: '';
+    position: absolute;
+  }
+  #mode-select > div > span:hover:before {
+    height: calc(100% - 12px);
+    left: -3px;
+    top: 6px;
+    width: calc(100% + 6px);
+  }
+  #mode-select > div > span:hover:after {
+    height: calc(100% + 6px);
+    left: 6px;
+    top: -3px;
+    width: calc(100% - 12px);
+  }
   </style>
 </head>
 <body>
-  <header>
+  <header data-action="menu" data-shortcut="+77">
     <i id="handle" class="mdi mdi-menu"></i>
     <div id="elements">
       <a class="back" href="//myze.xyz/my/maps">
@@ -494,6 +550,11 @@
                 <i class="mdi mdi-relative-scale"></i>
                 Toggle Guides
                 <u>Ctrl+G</u>
+              </li>
+              <li data-action="menu" data-shortcut="+77">
+                <i class="mdi mdi-close"></i>
+                Close Menu
+                <u>Ctrl+M</u>
               </li>
             </ul>
             <span>View</span>
@@ -605,6 +666,13 @@
       </section>
       <span class="close">×</span>
     </article>
+    <article id="mode-select">
+      <span>Please choose your Web Editor mode</span>
+      <div>
+        <span data-mode="inspect"><b>Inspect</b></span>
+        <span data-mode="create"><b>Create</b></span>
+      </div>
+    </article>
   </main>
   <div id="nowebkit" style="display:none">
     <div>
@@ -614,7 +682,7 @@
     </div>
   </div>
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="https://cdn.rawgit.com/DmitryBaranovskiy/raphael/master/raphael-min.js"></script>
+  <script src="https://cdn.rawgit.com/DmitryBaranovskiy/raphael/master/raphael.min.js"></script>
   <script>window.__map_id = 0-~~-0</script>
   <script src="editor.js"></script>
 </body>
