@@ -116,20 +116,15 @@ window.Editor = new class WebEditor
                 'x': +p.position.x - playerHalfSize + addX
                 'y': +p.position.z - playerHalfSize + addY
               players[p.id].syncArrow +p.eulerangles.y
-        
-    #@startTutorial()
     
   startTutorial: ->
     return if Global.Mode is Modes.INSPECT
-    ###
-    Showcases = require('./ui/Showcases')
-    Showcases.menu ->
-      @dispose() and Showcases.shortcuts ->
-        @dispose() and $('#menu-switch').click() and Showcases.settings ->
-          @dispose() and Showcases.spawnEscape ->
-            @dispose() and Showcases.save ->
-              @dispose() and $('#menu-switch').click()
-    ###
+    Showcases = require './ui/Showcases'
+    Showcases.intro ->
+      @dispose() and Showcases.draw ->
+        @dispose() and Showcases.move ->
+          @dispose() and Showcases.snap ->
+            @dispose() and Showcases.done()
     return
   
   undo: ->
@@ -213,3 +208,16 @@ window.Editor = new class WebEditor
           history.replaceState {}, document.title, "/editor?id=#{id}"
         Global.MapId = id
         Toast.text('Map uploaded successfully').show 2500
+  
+  export: ->
+    connections = Object.keys(Global.Connections).map (id)-> Global.Connections[id]
+    connections.forEach (stops)->
+      stops.forEach (stop)->
+        stop.hide()
+    str = Global.Paper.toSVG()
+    can = document.createElement 'canvas'
+    canvg can, str
+    connections.forEach (stops)->
+      stops.forEach (stop)->
+        stop.show()
+    location.href = can.toDataURL 'image/png'
