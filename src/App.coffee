@@ -75,13 +75,13 @@ window.Editor = new class WebEditor
           resolve no
         else
           $('#mode-select [data-mode]').click ->
-            $(@).closest('#mode-select').remove()
             switch @getAttribute 'data-mode'
               when 'inspect' then resolve yes
               when 'create' then resolve no
       .then (inspect)->
         if not inspect
           ### map editor ###
+          $('#mode-select').remove()
           require('./ui/SnapCursor')()
           require('./ui/Tooltip')()
           require('./ui/Menu')()
@@ -93,6 +93,7 @@ window.Editor = new class WebEditor
           else
             Global.MapTitle = 'Untitled'
         else
+          ### spectator mode ###
           Global.Mode = Modes.INSPECT
           require('./util/MapRestore') data, addX, addY
           $('header').remove()
