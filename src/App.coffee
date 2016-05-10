@@ -79,9 +79,9 @@ window.Editor = new class WebEditor
               when 'inspect' then resolve yes
               when 'create' then resolve no
       .then (inspect)->
+        $('#mode-select').remove()
         if not inspect
           ### map editor ###
-          $('#mode-select').remove()
           require('./ui/SnapCursor')()
           require('./ui/Tooltip')()
           require('./ui/Menu')()
